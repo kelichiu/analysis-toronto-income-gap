@@ -1,0 +1,112 @@
+---
+title: "Analysing Education Level in Toronto by Neighborhood"
+author: "Ke-li Chiu & Diego Mamanche Castellanos"
+date: "23/01/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ke-li's writing!!!!!!
+
+Ke-li 
+
+
+Importing libraries
+
+```{r, echo=TRUE}
+my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
+
+# For each of the 3 packages, check whether each one exists, and install if not
+for (pkg in my_packages) {
+  
+  if (!pkg %in% installed.packages()) { 
+    # If package is not installed, install it:
+    install.packages(pkg)
+  } 
+}
+
+# Importing libraries
+library(opendatatoronto)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+```
+
+## Guess what, more Keli's writing!!!
+
+## Finding the data
+
+To find a dataset you like, you have a couple options:
+
+1. Search for a dataset manually via the [Toronto Open Data Portal](https://open.toronto.ca/)
+2. Use the `search_packages()` function
+
+Here we'll use the `search_packages()` function to keep this document self-contained.
+
+
+```{r, echo= TRUE}
+# Search packages (this returns a table)
+wellbeing_packages <- search_packages("Wellbeing")
+
+# Print the table
+delay_packages
+
+```
+
+
+
+You guessed right!!!! more Ke-li´s writing.
+
+```{r, echo= TRUE}
+wellbeing_demographics_package<- wellbeing_packages %>%
+  filter(title == "Wellbeing Toronto - Demographics: NHS Indicators") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
+
+```
+
+
+More writing
+
+```{r, echo= TRUE}
+list_package_resources(wellbeing_demographics_package)
+
+```
+
+Writing
+
+```{r, echo= TRUE}
+demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
+  list_package_resources() %>% # List the resources in the package
+  filter(name == "demographics-nhs-indicators-2011") %>% # Only keep the resource we want 
+  get_resource()
+```
+
+
+We have the data
+
+```{r, echo=TRUE}
+demographic_indicators2011
+```
+
+
+Writing
+
+
+```{r}
+# See what the "Line" column looks like
+edu_demographic2011 = demographic_indicators2011 %>% select('College, CEGEP or other non-university certificate or diploma')
+
+edu_demographic2011 <- edu_demographic2011 %>% 
+  rename(
+    'Less than Bachelor' = 'College, CEGEP or other non-university certificate or diploma'
+    )
+
+edu_demographic2011 <- edu_demographic2011 %>%
+  dplyr::slice(2:)
+
+edu_demographic2011
+
+```
