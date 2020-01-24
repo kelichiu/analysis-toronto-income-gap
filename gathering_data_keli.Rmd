@@ -1,0 +1,184 @@
+Importing libraries
+
+```{r, echo=TRUE}
+my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
+# For each of the 3 packages, check whether each one exists, and install if not
+for (pkg in my_packages) {
+  
+  if (!pkg %in% installed.packages()) { 
+    # If package is not installed, install it:
+    install.packages(pkg)
+  } 
+}
+# Importing libraries
+library(opendatatoronto)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+## Finding the data
+
+To find a dataset you like, you have a couple options:
+
+1. Search for a dataset manually via the [Toronto Open Data Portal](https://open.toronto.ca/)
+2. Use the `search_packages()` function
+
+Here we'll use the `search_packages()` function to keep this document self-contained.
+
+```{r, echo= TRUE}
+# Search packages (this returns a table)
+wellbeing_packages <- search_packages("Wellbeing")
+# Print the table
+wellbeing_packages
+```
+Get demographic package as the main package
+```{r, echo= TRUE}
+wellbeing_demographics_package<- wellbeing_packages %>%
+  filter(title == "Wellbeing Toronto - Demographics: NHS Indicators") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
+```
+
+Get Housing package for neighbourhood name retrieval 
+```{r, echo= TRUE}
+wellbeing_housing_package<- wellbeing_packages %>%
+  filter(title == "Wellbeing Toronto - Housing") 
+```
+
+List package resources for both packages
+
+```{r, echo= TRUE}
+list_package_resources(wellbeing_demographics_package)
+```
+
+Get demographic dataset from the package
+
+```{r, echo= TRUE}
+demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
+  list_package_resources() %>% 
+  filter(name == "demographics-nhs-indicators-2011") %>% 
+  get_resource()
+```
+
+```{r, echo= TRUE}
+list_package_resources(wellbeing_housing_package)
+```
+Get Housing dataset from the package, choosing a specific sheet
+```{r, echo= TRUE}
+housing_data <- wellbeing_housing_package %>% # Start with the package 
+  list_package_resources() %>% # List the resources in the package
+  filter(name == "wellbeing-toronto-housing") %>% 
+  get_resource()
+housing_data <- housing_data$RawDataRef_2011
+```
+
+Slice the demographic dataset
+```{r, echo=TRUE}
+demographic_indicators2011 <- demographic_indicators2011 %>%
+  dplyr::slice(2:142)
+demographic_with_names <-demographic_indicators2011
+```
+Rename wanted columns
+```{r, echo=TRUE}
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'hood' = 'Hood#'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'median_household_income' = 'Median household total income $'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'total_pop' = 'Total Population'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'no_certificate' = 'No certificate, diploma or degree'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'college' = 'College, CEGEP or other non-university certificate or diploma'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'bachelor' = 'University certificate or diploma below bachelor level'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'total_visible_minority' = 'Total visible minority population'
+    )
+demographic_with_names <- demographic_with_names %>% 
+  rename(
+    'not_visible_minority' = 'Not a visible minority'
+    )
+
+```
+
+Add neighbourhood column
+```{r, echo=TRUE}
+# neighbourhood
+demographic_with_names <- 
+  mutate(demographic_with_names, neighbourhood =
+           housing_data$Neighbourhood)
+demographic_with_names$neighbourhood
+```
+
+Add percentage columns (maybe a for loop)
+```{r, echo=TRUE}
+# No_Certificate_pt
+demographic_with_names <- 
+  mutate(demographic_with_names, no_certificate_pt =
+           as.numeric(demographic_with_names$no_certificate)/as.numeric(demographic_with_names$total_pop))
+demographic_with_names$no_certificate_pt
+
+# College
+demographic_with_names <- 
+  mutate(demographic_with_names, college_pt =
+           as.numeric(demographic_with_names$college)/as.numeric(demographic_with_names$total_pop))
+demographic_with_names$college_pt
+
+# Bachelor
+demographic_with_names <- 
+  mutate(demographic_with_names, bachelor_pt =
+           as.numeric(demographic_with_names$bachelor)/as.numeric(demographic_with_names$total_pop))
+demographic_with_names$bachelor_pt
+
+# Total_Visible_Mino
+demographic_with_names <- 
+  mutate(demographic_with_names, total_visible_minority_pt =
+           as.numeric(demographic_with_names$total_visible_minority)/as.numeric(demographic_with_names$total_pop))
+demographic_with_names$total_visible_minority_pt
+
+# Not_Visible_Mino
+demographic_with_names <- 
+  mutate(demographic_with_names, not_visible_minority_pt =
+           as.numeric(demographic_with_names$not_visible_minority)/as.numeric(demographic_with_names$total_pop))
+demographic_with_names$not_visible_minority_pt
+```
+```{r, echo=TRUE}
+demographic_with_names
+```
+
+Select wanted columns
+```{r, echo=TRUE}
+demographic_with_names <- transform(demographic_with_names, median_household_income = as.numeric(median_household_income))
+
+income <-demographic_with_names$median_household_income
+target <- c(max(income), min(income))
+
+demographic_with_names <- demographic_with_names %>%
+  select(
+    hood,
+    neighbourhood,
+    total_pop,
+    median_household_income,
+    no_certificate_pt,
+    college_pt,
+    bachelor_pt,
+    total_visible_minority_pt,
+    not_visible_minority_pt,
+  ) %>%
+  filter(median_household_income %in% target)
+demographic_with_names
+```
+To do: Add a row for Toronto average
