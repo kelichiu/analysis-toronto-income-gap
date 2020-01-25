@@ -1,6 +1,6 @@
 ---
 title: "Compairing Toronto Neighborhoods With The Highest And Lowest Income"
-author: "Ke-li Chiu & Diego Mamanche Castellanos"
+authors: "Ke-li Chiu & Diego Mamanche Castellanos"
 date: "23/01/2020"
 output: html_document
 ---
@@ -9,9 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Importing libraries
 
-```{r, echo=TRUE}
+```{r, echo=FALSE}
+# installing packages
+
 my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
 
 # For each of the 3 packages, check whether each one exists, and install if not
@@ -31,10 +32,10 @@ library(ggplot2)
 
 ```
 
-## Finding the data
+# ABOUT THE DATA
 
 
-```{r, echo= TRUE}
+```{r, echo= FALSE}
 # Search packages (this returns a table)
 wellbeing_packages <- search_packages("Wellbeing")
 
@@ -45,11 +46,14 @@ wellbeing_packages
 
 
 
-##First Data set
+## The Wellbeing Toronto datasets
 
-###Filtering the wellbeing demographic dataset
+Explanation
 
-```{r, echo= TRUE}
+
+
+```{r, echo= FALSE}
+### Filtering the wellbeing demographic dataset
 wellbeing_demographics_package<- wellbeing_packages %>%
   filter(title == "Wellbeing Toronto - Demographics: NHS Indicators") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
 
@@ -58,7 +62,7 @@ wellbeing_demographics_package<- wellbeing_packages %>%
 
 List the names of the internal datasets
 
-```{r, echo= TRUE}
+```{r, echo= FALSE}
 list_package_resources(wellbeing_demographics_package)
 
 ```
@@ -70,6 +74,7 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
   list_package_resources() %>% # List the resources in the package
   filter(name == "demographics-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
+
 ```
 
 Cleaning the column names using janitor::clean_names
