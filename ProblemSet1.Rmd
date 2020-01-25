@@ -111,7 +111,7 @@ education_indicators2011 <- wellbeing_demographics_package %>% # Start with the 
 #Cleaning the column names using janitor::clean_names
 education_indicators2011 <-
   janitor::clean_names(education_indicators2011)
-head(education_indicators2011[,1:4])
+#head(education_indicators2011[,1:4])
 ```
 
 We extract the code from column "geography" and the levels of education.
@@ -120,7 +120,7 @@ We extract the code from column "geography" and the levels of education.
 #Extracting the neighbourhood code from the column "geography"
 edu_id <- extract(education_indicators2011, geography, into = "ID" , regex = "([(][0-9]+[)])")
 edu_id <- extract(edu_id, ID, into = "ID" , regex = "([0-9]+)")
-head(edu_id[,1:4])
+#head(edu_id[,1:4])
 ```
 
 
@@ -151,7 +151,7 @@ housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package
   filter(name == "wellbeing-toronto-housing") %>% # Only keep the resource we want 
   get_resource()
 housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
-head(housing_indicators2011[,1:4])
+#head(housing_indicators2011[,1:4])
 ```
 
 
@@ -177,7 +177,7 @@ Explanation
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
 merged_df <- merge(merged_df, edu_id, by = 'ID')
 merged_df <- merged_df[,1:16]
-head(merged_df)
+#head(merged_df)
 ```
 
 ```{r echo=FALSE}
@@ -219,7 +219,7 @@ filtered_dataset <-
 
 filtered_dataset <- mutate(filtered_dataset, total_population = (    no_high_school + above_bachelor + university_diploma + less_than_diploma + bachelors_degree ))
 
-head(filtered_dataset)
+#head(filtered_dataset)
 ```
 
 
@@ -230,7 +230,7 @@ head(filtered_dataset)
 graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
 #Reshape the dataset
 graph1_df <- gather(graph1_df, "income_type", "income_value", -1)
-graph1_df
+#graph1_df
 ```
 
 
@@ -246,7 +246,7 @@ ggplot(graph1_df, aes(x = neighbourhood, y = income_value, fill = income_type)) 
        y = "Income") 
 ```
 
-##Create graph2 dataframe
+## Create graph2 dataframe
 
 ```{r echo= FALSE}
 #Create the dataframe graph1_df to plot the values
@@ -277,16 +277,16 @@ graph2_df_percentage <- graph2_df_percentage %>%
     neighbourhood
   )
 
-graph2_df_percentage
+#graph2_df_percentage
 
 #Reshape the dataset
 graph2_df_percentage_long <- 
   graph2_df_percentage %>% 
   pivot_longer(cols = no_high_school_pt:bachelors_degree_pt, names_to = "study_level")
-graph2_df_percentage_long
+#graph2_df_percentage_long
 ```
 
-##Plotting Graph2
+## Plotting Graph2
 
 ```{r echo= FALSE}
 ggplot(
