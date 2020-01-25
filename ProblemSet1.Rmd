@@ -1,5 +1,5 @@
 ---
-title: "Compairing Toronto Neighborhoods With The Highest And Lowest Income"
+title: "Compairing Toronto neighbourhoods With The Highest And Lowest Income"
 authors: "Ke-li Chiu & Diego Mamanche Castellanos"
 date: "23/01/2020"
 output: html_document
@@ -40,7 +40,7 @@ library(ggplot2)
 wellbeing_packages <- search_packages("Wellbeing")
 
 # Print the table
-wellbeing_packages
+#wellbeing_packages
 
 ```
 
@@ -67,9 +67,12 @@ list_package_resources(wellbeing_demographics_package)
 
 ```
 
-Getting the information dataset called "demographics-nhs-indicators-2011" 
+## First dataset
 
-```{r, echo= TRUE}
+We chose demographics-nhs-indicators-2011 internal dataset for information about income
+
+```{r, echo= FALSE}
+#Getting the information dataset called "demographics-nhs-indicators-2011"
 demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "demographics-nhs-indicators-2011") %>% # Only keep the resource we want 
@@ -77,19 +80,21 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
 
 ```
 
-Cleaning the column names using janitor::clean_names
 
-```{r, echo=TRUE}
+
+```{r, echo=FALSE}
+#Cleaning the column names using janitor::clean_names
 demographic_indicators2011 <-
   janitor::clean_names(demographic_indicators2011)
 
-demographic_indicators2011
+head(demographic_indicators2011[,c(1,46:48)])
 ```
 
-Selecting columns needed
 
-```{r, echo= TRUE}
-income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income", 'total_visible_minority_population', 'not_a_visible_minority'))
+
+```{r, echo= FALSE}
+#Selecting columns needed
+income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income","median_household_total_income", 'total_visible_minority_population', 'not_a_visible_minority'))
 
 names(income_demographic2011)[names(income_demographic2011) == "hood_number"] <- "ID"
 
@@ -97,63 +102,71 @@ names(income_demographic2011)[names(income_demographic2011) == "hood_number"] <-
 
 income_demographic2011 <- income_demographic2011[income_demographic2011$ID != 'ID',]       
 
-income_demographic2011
+#income_demographic2011
 ```
 
 ##Second dataset
 
-Getting the information dataset called "education-nhs-indicators-2011" 
+We chose education-nhs-indicators-2011 internal dataset for information about education levels 
 
 
-```{r, echo= TRUE}
+```{r, echo= FALSE}
 education_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "education-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
+
+#education_indicators2011
 ```
 
 
-Cleaning the column names using janitor::clean_names
+
 
 ```{r, echo=TRUE}
+#Cleaning the column names using janitor::clean_names
 education_indicators2011 <-
   janitor::clean_names(education_indicators2011)
 
-education_indicators2011
+head(education_indicators2011[,1:4])
 ```
 
-Extracting the neighbourhood code from the column "geography"
+We extract the code from column "geography" and the levels of education.
 
 ```{r}
+#Extracting the neighbourhood code from the column "geography"
 edu_id <- extract(education_indicators2011, geography, into = "ID" , regex = "([(][0-9]+[)])")
 
 edu_id <- extract(edu_id, ID, into = "ID" , regex = "([0-9]+)")
 
-edu_id
+head(edu_id[,1:4])
 ```
 
 
-##Third dataset
+## Third dataset
 
-###Filterint the housing dataset in order to extract the names of each neighborhood.
+We chose "Wellbeing Toronto - Housing" dataset in order to extract the names of the neighbourhood.
 
 ```{r, echo= TRUE}
+###Filterint the housing dataset in order to extract the names of each neighbourhood.
+
 wellbeing_housing_package <- wellbeing_packages %>%
   filter(title == "Wellbeing Toronto - Housing") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
 
 ```
 
 
-Extracting the package
+
 
 ```{r, echo= TRUE}
+#Extracting the package
 list_package_resources(wellbeing_housing_package)
 
 ```
 
-Getting the information dataset called "wellbeing-toronto-housing"
+
 
 ```{r, echo= TRUE}
+#Getting the information dataset called "wellbeing-toronto-housing"
 housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "wellbeing-toronto-housing") %>% # Only keep the resource we want 
@@ -161,13 +174,14 @@ housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package
 
 housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
 
-housing_indicators2011
+head(housing_indicators2011[,1:4])
 ```
 
 
-Cleaning the column names using janitor::clean_names, and selecting columns needed
+
 
 ```{r}
+#Cleaning the column names using janitor::clean_names, and selecting columns needed
 housing_indicators2011 <- 
   janitor::clean_names(housing_indicators2011)
 
@@ -176,61 +190,30 @@ housing_indicators2011 <- subset(housing_indicators2011, select = c("neighbourho
 names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id"] <- "ID"
 
 
-housing_indicators2011
+#housing_indicators2011
 ```
 
 
 
 
-##Merging all datasets
+## Merging all datasets
+
+Explanation
 
 ```{r}
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
 merged_df <- merge(merged_df, edu_id, by = 'ID')
 
-merged_df <- merged_df[,1:15]
+merged_df <- merged_df[,1:16]
 
 
-merged_df
+head(merged_df)
 
 
 ```
 
-#Create Graph1 dataframe 
-
-```{r}
-#Create variable called values and calculate median, max, and mean
-values <- c(median(as.numeric(merged_df$median_after_tax_household_income)), max(as.numeric(merged_df$median_after_tax_household_income)), min(as.numeric(merged_df$median_after_tax_household_income)))
-
-#Create variable called neighborhoods, adding the names of the neighborhoods found in the variable "values"
-neighborhoods <- c('Toronto Median', merged_df[which.max(merged_df$median_after_tax_household_income),]$neighbourhood, merged_df[which.min(merged_df$median_after_tax_household_income),]$neighbourhood)
-
-#Create variable measures to clarify each row
-measures <- c('median', 'max', 'min')
-
-#Create the dataframe graph1_df to plot the values
-graph1_df <- cbind.data.frame(measures, neighborhoods, values)
-graph1_df
-
-```
-
-
-Plotting the graph
-
-```{r}
-ggplot(graph1_df, aes(x = neighborhoods, y = values)) + 
-  # Specify that we want a bar graph:
-  geom_col() + 
-  # Add titles and axis labels:
-  labs(title = "Neighborhoods with the Highest and Lowest median income, \nand Toronto median income", 
-       x = "Neighborhood", 
-       y = "Income") 
-
-```
-
-##Create graph2 dataframe
-
-```{r}
+```{r echo=FALSE}
+#CLEANING THE MERGED DATASET
 
 #Calculate the median for column "median_after_tax_household_income"
 #Note: In this case, the median is better due to outliers
@@ -239,19 +222,23 @@ toronto_median_income <- median(as.numeric(income_demographic2011$median_after_t
 toronto_median_income
 
 #Calculate mean for the rest of the columns
-toronto_other_columns <-  mutate_all(merged_df[,4:15], as.numeric)
+toronto_other_columns <-  mutate_all(merged_df[,4:16], as.numeric)
 toronto_other_columns <- colMeans(toronto_other_columns)
 toronto_other_columns <- as.data.frame(toronto_other_columns)
 toronto_other_columns <- round(toronto_other_columns[,1])
 
 toronto_other_columns
+
+
+neighbourhoods <- c(merged_df[which.max(merged_df$median_after_tax_household_income),]$neighbourhood, merged_df[which.min(merged_df$median_after_tax_household_income),]$neighbourhood)
+
 #Create graph2 dataframe
-filtered_dataset <- filter(merged_df, neighbourhood %in% c(neighborhoods))
+filtered_dataset <- filter(merged_df, neighbourhood %in% c(neighbourhoods))
 filtered_dataset <- add_row(filtered_dataset)
 
 #Assign values to third row
 filtered_dataset[3,2:3] <- c('Toronto', toronto_median_income)
-filtered_dataset[3,4:15] <- toronto_other_columns
+filtered_dataset[3,4:16] <- toronto_other_columns
 
 filtered_dataset
 
@@ -263,22 +250,52 @@ college_cegep_or_other_non_university_certificate_or_diploma)
 #Rename columns
 filtered_dataset <- 
   rename(filtered_dataset, 
-    median_income = median_after_tax_household_income,
+    median_income = median_household_total_income,
+    median_income_after_tax = median_after_tax_household_income,
     no_high_school = no_certificate_diploma_or_degree,
     above_bachelor = university_certificate_diploma_or_degree_above_bachelor_level,
     university_diploma = university_certificate_or_diploma_below_bachelor_level
     )
 
+head(filtered_dataset)
+```
 
-graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor)
+
+#Create Graph1 dataframe 
+
+```{r}
+#Create the dataframe graph1_df to plot the values
+graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
+
+#Reshape the dataset
+graph1_df <- gather(graph1_df, "income_type", "income_value", -1)
+
+graph1_df
+```
 
 
-graph2_df
+Plotting the graph
+
+```{r}
+ggplot(graph1_df, aes(x = neighbourhood, y = income_value, fill = income_type)) + 
+  # Specify that we want a bar graph:
+  geom_bar(stat="identity", position=position_dodge()) + 
+  # Add titles and axis labels:
+  labs(title = "neighbourhoods with the Highest and Lowest median income, \nand Toronto median income", 
+       x = "neighbourhood", 
+       y = "Income") 
 
 ```
 
-#Reshaping the dataset
+##Create graph2 dataframe
+
 ```{r}
+#Create the dataframe graph1_df to plot the values
+graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor)
+
+graph2_df
+
+#Reshape the dataset
 
 graph2_df <- gather(graph2_df, "study_level", "count_level", -1)
 
@@ -295,8 +312,8 @@ ggplot(graph2_df, aes(x = neighbourhood, y = count_level, fill = study_level)) +
   geom_bar(stat="identity", position=position_dodge()) +
   #geom_text(aes(y=label_ypos, label=c('Bridle Path - Sunnybrook - York Mills', 'Regent Park', 'Toronto'))) +
   # Add titles and axis labels:
-  labs(title = "Neighborhoods by study level", 
-       x = "Neighborhood", 
+  labs(title = "neighbourhoods by study level", 
+       x = "neighbourhood", 
        y = "Population") 
 
 ```
