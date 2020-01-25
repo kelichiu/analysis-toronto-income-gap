@@ -12,9 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, echo=FALSE}
 # installing packages
-
 my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
-
 # For each of the 3 packages, check whether each one exists, and install if not
 for (pkg in my_packages) {
   
@@ -23,13 +21,11 @@ for (pkg in my_packages) {
     install.packages(pkg)
   } 
 }
-
 # Importing libraries
 library(opendatatoronto)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-
 ```
 
 # ABOUT THE DATA
@@ -38,10 +34,8 @@ library(ggplot2)
 ```{r, echo= FALSE}
 # Search packages (this returns a table)
 wellbeing_packages <- search_packages("Wellbeing")
-
 # Print the table
 #wellbeing_packages
-
 ```
 
 
@@ -56,7 +50,6 @@ Explanation
 ### Filtering the wellbeing demographic dataset
 wellbeing_demographics_package<- wellbeing_packages %>%
   filter(title == "Wellbeing Toronto - Demographics: NHS Indicators") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
-
 ```
 
 
@@ -64,7 +57,6 @@ List the names of the internal datasets
 
 ```{r, echo= FALSE}
 list_package_resources(wellbeing_demographics_package)
-
 ```
 
 ## First dataset
@@ -77,7 +69,6 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
   list_package_resources() %>% # List the resources in the package
   filter(name == "demographics-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
-
 ```
 
 
@@ -86,7 +77,6 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
 #Cleaning the column names using janitor::clean_names
 demographic_indicators2011 <-
   janitor::clean_names(demographic_indicators2011)
-
 head(demographic_indicators2011[,c(1,46:48)])
 ```
 
@@ -94,14 +84,10 @@ head(demographic_indicators2011[,c(1,46:48)])
 
 ```{r, echo= FALSE}
 #Selecting columns needed
-income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income","median_household_total_income", 'total_visible_minority_population', 'not_a_visible_minority'))
-
+income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number","total_population", "median_after_tax_household_income","median_household_total_income", 'total_visible_minority_population', 'not_a_visible_minority'))
 names(income_demographic2011)[names(income_demographic2011) == "hood_number"] <- "ID"
-
 #income_demographic2011  <- as.data.frame(income_demographic2011)
-
 income_demographic2011 <- income_demographic2011[income_demographic2011$ID != 'ID',]       
-
 #income_demographic2011
 ```
 
@@ -115,7 +101,6 @@ education_indicators2011 <- wellbeing_demographics_package %>% # Start with the 
   list_package_resources() %>% # List the resources in the package
   filter(name == "education-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
-
 #education_indicators2011
 ```
 
@@ -126,7 +111,6 @@ education_indicators2011 <- wellbeing_demographics_package %>% # Start with the 
 #Cleaning the column names using janitor::clean_names
 education_indicators2011 <-
   janitor::clean_names(education_indicators2011)
-
 head(education_indicators2011[,1:4])
 ```
 
@@ -135,9 +119,7 @@ We extract the code from column "geography" and the levels of education.
 ```{r}
 #Extracting the neighbourhood code from the column "geography"
 edu_id <- extract(education_indicators2011, geography, into = "ID" , regex = "([(][0-9]+[)])")
-
 edu_id <- extract(edu_id, ID, into = "ID" , regex = "([0-9]+)")
-
 head(edu_id[,1:4])
 ```
 
@@ -148,10 +130,8 @@ We chose "Wellbeing Toronto - Housing" dataset in order to extract the names of 
 
 ```{r, echo= TRUE}
 ###Filterint the housing dataset in order to extract the names of each neighbourhood.
-
 wellbeing_housing_package <- wellbeing_packages %>%
   filter(title == "Wellbeing Toronto - Housing") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
-
 ```
 
 
@@ -160,7 +140,6 @@ wellbeing_housing_package <- wellbeing_packages %>%
 ```{r, echo= TRUE}
 #Extracting the package
 list_package_resources(wellbeing_housing_package)
-
 ```
 
 
@@ -171,9 +150,7 @@ housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package
   list_package_resources() %>% # List the resources in the package
   filter(name == "wellbeing-toronto-housing") %>% # Only keep the resource we want 
   get_resource()
-
 housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
-
 head(housing_indicators2011[,1:4])
 ```
 
@@ -184,12 +161,8 @@ head(housing_indicators2011[,1:4])
 #Cleaning the column names using janitor::clean_names, and selecting columns needed
 housing_indicators2011 <- 
   janitor::clean_names(housing_indicators2011)
-
 housing_indicators2011 <- subset(housing_indicators2011, select = c("neighbourhood_id", "neighbourhood"))
-
 names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id"] <- "ID"
-
-
 #housing_indicators2011
 ```
 
@@ -203,47 +176,32 @@ Explanation
 ```{r}
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
 merged_df <- merge(merged_df, edu_id, by = 'ID')
-
 merged_df <- merged_df[,1:16]
-
-
 head(merged_df)
-
-
 ```
 
 ```{r echo=FALSE}
 #CLEANING THE MERGED DATASET
-
 #Calculate the median for column "median_after_tax_household_income"
 #Note: In this case, the median is better due to outliers
   
 toronto_median_income <- median(as.numeric(income_demographic2011$median_after_tax_household_income))
 toronto_median_income
-
 #Calculate mean for the rest of the columns
 toronto_other_columns <-  mutate_all(merged_df[,4:16], as.numeric)
 toronto_other_columns <- colMeans(toronto_other_columns)
 toronto_other_columns <- as.data.frame(toronto_other_columns)
 toronto_other_columns <- round(toronto_other_columns[,1])
-
 toronto_other_columns
-
-
 neighbourhoods <- c(merged_df[which.max(merged_df$median_after_tax_household_income),]$neighbourhood, merged_df[which.min(merged_df$median_after_tax_household_income),]$neighbourhood)
-
 #Create graph2 dataframe
 filtered_dataset <- filter(merged_df, neighbourhood %in% c(neighbourhoods))
 filtered_dataset <- add_row(filtered_dataset)
-
 #Assign values to third row
 filtered_dataset[3,2:3] <- c('Toronto', toronto_median_income)
 filtered_dataset[3,4:16] <- toronto_other_columns
-
 filtered_dataset
-
 filtered_dataset <- mutate(filtered_dataset, less_than_diploma = high_school_diploma_or_equivalent + 
-postsecondary_certificate_diploma_or_degree + 
 apprenticeship_or_trades_certificate_or_diploma + 
 college_cegep_or_other_non_university_certificate_or_diploma)
 
@@ -253,10 +211,9 @@ filtered_dataset <-
     median_income = median_household_total_income,
     median_income_after_tax = median_after_tax_household_income,
     no_high_school = no_certificate_diploma_or_degree,
-    above_bachelor = university_certificate_diploma_or_degree_above_bachelor_level,
+    above_bachelor = university_certificate_diploma_or_degree_at_bachelor_level_or_above,
     university_diploma = university_certificate_or_diploma_below_bachelor_level
     )
-
 head(filtered_dataset)
 ```
 
@@ -266,10 +223,8 @@ head(filtered_dataset)
 ```{r}
 #Create the dataframe graph1_df to plot the values
 graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
-
 #Reshape the dataset
 graph1_df <- gather(graph1_df, "income_type", "income_value", -1)
-
 graph1_df
 ```
 
@@ -284,37 +239,58 @@ ggplot(graph1_df, aes(x = neighbourhood, y = income_value, fill = income_type)) 
   labs(title = "neighbourhoods with the Highest and Lowest median income, \nand Toronto median income", 
        x = "neighbourhood", 
        y = "Income") 
-
 ```
 
 ##Create graph2 dataframe
 
 ```{r}
 #Create the dataframe graph1_df to plot the values
-graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor)
+graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor, total_population)
+# Create percentage columns
+graph2_df_percentage <- 
+  mutate(graph2_df, no_high_school_pt =
+           as.numeric(graph2_df$no_high_school)/as.numeric(graph2_df$total_population))
+graph2_df_percentage <- 
+  mutate(graph2_df_percentage, above_bachelor_pt =
+           as.numeric(graph2_df$above_bachelor)/as.numeric(graph2_df$total_population))
+graph2_df_percentage <- 
+  mutate(graph2_df_percentage, university_diploma_pt =
+           as.numeric(graph2_df$university_diploma)/as.numeric(graph2_df$total_population))
+graph2_df_percentage <- 
+  mutate(graph2_df_percentage, less_than_diploma_pt =
+           as.numeric(graph2_df$less_than_diploma)/as.numeric(graph2_df$total_population))
+graph2_df_percentage <- 
+  mutate(graph2_df_percentage, bachelors_degree_pt =
+           as.numeric(graph2_df$bachelors_degree)/as.numeric(graph2_df$total_population))
+graph2_df_percentage <- graph2_df_percentage %>%
+  select(
+    no_high_school_pt,
+    above_bachelor_pt,
+    university_diploma_pt,
+    less_than_diploma_pt,
+    bachelors_degree_pt,
+    neighbourhood
+  )
 
-graph2_df
+graph2_df_percentage
 
 #Reshape the dataset
-
-graph2_df <- gather(graph2_df, "study_level", "count_level", -1)
-
-graph2_df
-
+graph2_df_percentage_long <- 
+  graph2_df_percentage %>% 
+  pivot_longer(cols = no_high_school_pt:bachelors_degree_pt, names_to = "study_level")
+graph2_df_percentage_long
 ```
 
 ##Plotting Graph2
 
 ```{r}
-
-ggplot(graph2_df, aes(x = neighbourhood, y = count_level, fill = study_level)) + 
+ggplot(
+graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) +
   #geom_text(aes(y=label_ypos, label=c('Bridle Path - Sunnybrook - York Mills', 'Regent Park', 'Toronto'))) +
   # Add titles and axis labels:
-  labs(title = "neighbourhoods by study level", 
-       x = "neighbourhood", 
+  labs(title = "Neighborhoods by study level", 
+       x = "Neighborhood", 
        y = "Population") 
-
 ```
-
