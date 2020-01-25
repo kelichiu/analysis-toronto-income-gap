@@ -9,12 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Ke-li's writing!!!!!!
-
-Ke-li 
-
-
-Importing libraries
+## Importing libraries
 
 ```{r, echo=TRUE}
 my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
@@ -36,16 +31,7 @@ library(ggplot2)
 
 ```
 
-## Guess what, more Keli's writing!!!
-
 ## Finding the data
-
-To find a dataset you like, you have a couple options:
-
-1. Search for a dataset manually via the [Toronto Open Data Portal](https://open.toronto.ca/)
-2. Use the `search_packages()` function
-
-Here we'll use the `search_packages()` function to keep this document self-contained.
 
 
 ```{r, echo= TRUE}
@@ -59,7 +45,9 @@ wellbeing_packages
 
 
 
-You guessed right!!!! more Ke-li´s writing.
+##First Data set
+
+###Filtering the wellbeing demographic dataset
 
 ```{r, echo= TRUE}
 wellbeing_demographics_package<- wellbeing_packages %>%
@@ -68,14 +56,14 @@ wellbeing_demographics_package<- wellbeing_packages %>%
 ```
 
 
-More writing
+List the names of the internal datasets
 
 ```{r, echo= TRUE}
 list_package_resources(wellbeing_demographics_package)
 
 ```
 
-Writing
+Getting the information dataset called "demographics-nhs-indicators-2011" 
 
 ```{r, echo= TRUE}
 demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
@@ -84,11 +72,7 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
   get_resource()
 ```
 
-
-
-
-
-We have the data
+Cleaning the column names using janitor::clean_names
 
 ```{r, echo=TRUE}
 demographic_indicators2011 <-
@@ -96,6 +80,8 @@ demographic_indicators2011 <-
 
 demographic_indicators2011
 ```
+
+Selecting columns needed
 
 ```{r, echo= TRUE}
 income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income", 'no_certificate_diploma_or_degree', 'college_cegep_or_other_non_university_certificate_or_diploma', 'university_certificate_or_diploma_below_bachelor_level', 'total_visible_minority_population', 'not_a_visible_minority'))
@@ -110,10 +96,9 @@ income_demographic2011
 ```
 
 
+##Second dataset
 
-
-Second dataset
-
+###Filterint the housing dataset in order to extract the names of each neighborhood.
 
 ```{r, echo= TRUE}
 wellbeing_housing_package <- wellbeing_packages %>%
@@ -122,14 +107,14 @@ wellbeing_housing_package <- wellbeing_packages %>%
 ```
 
 
-More writing
+Extracting the package
 
 ```{r, echo= TRUE}
 list_package_resources(wellbeing_housing_package)
 
 ```
 
-Writing
+Getting the information dataset called "wellbeing-toronto-housing"
 
 ```{r, echo= TRUE}
 housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package 
@@ -138,14 +123,12 @@ housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package
   get_resource()
 
 housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
-```
 
-
-We have the data
-
-```{r, echo=TRUE}
 housing_indicators2011
 ```
+
+
+Cleaning the column names using janitor::clean_names, and selecting columns needed
 
 ```{r}
 housing_indicators2011 <- 
@@ -159,29 +142,32 @@ names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id
 housing_indicators2011
 ```
 
+##Merging both datasets
+
 ```{r}
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
 
 merged_df
 ```
 
-
-```{r}
 #Create Graph1 dataframe 
 
-#income_demographic2011 <- transform(income_demographic2011, Median_income #= as.numeric(Median_income))
-
-
+```{r}
+#Create variable called values and calculate median, max, and mean
 values <- c(median(as.numeric(merged_df$median_after_tax_household_income)), max(as.numeric(merged_df$median_after_tax_household_income)), min(as.numeric(merged_df$median_after_tax_household_income)))
 
+#Create variable called neighborhoods, adding the names of the neighborhoods found in the variable "values"
 neighborhoods <- c('Toronto Median', merged_df[which.max(merged_df$median_after_tax_household_income),]$neighbourhood, merged_df[which.min(merged_df$median_after_tax_household_income),]$neighbourhood)
 
+#Create variable measures to clarify each row
 measures <- c('median', 'max', 'min')
 
+#Create the dataframe graph1_df to plot the values
 graph1_df <- cbind.data.frame(measures, neighborhoods, values)
 graph1_df
 
 ```
 
-
 ```
+
+
