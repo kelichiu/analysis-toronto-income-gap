@@ -205,6 +205,8 @@ filtered_dataset <- mutate(filtered_dataset, less_than_diploma = high_school_dip
 apprenticeship_or_trades_certificate_or_diploma + 
 college_cegep_or_other_non_university_certificate_or_diploma)
 
+
+
 #Rename columns
 filtered_dataset <- 
   rename(filtered_dataset, 
@@ -214,6 +216,9 @@ filtered_dataset <-
     above_bachelor = university_certificate_diploma_or_degree_at_bachelor_level_or_above,
     university_diploma = university_certificate_or_diploma_below_bachelor_level
     )
+
+filtered_dataset <- mutate(filtered_dataset, total_population = (    no_high_school + above_bachelor + university_diploma + less_than_diploma + bachelors_degree ))
+
 head(filtered_dataset)
 ```
 
