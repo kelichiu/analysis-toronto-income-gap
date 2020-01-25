@@ -1,5 +1,5 @@
 ---
-title: "Analysing Education Level in Toronto by Neighborhood"
+title: "Compairing Toronto Neighborhoods With The Highest And Lowest Income"
 author: "Ke-li Chiu & Diego Mamanche Castellanos"
 date: "23/01/2020"
 output: html_document
@@ -53,7 +53,7 @@ Here we'll use the `search_packages()` function to keep this document self-conta
 wellbeing_packages <- search_packages("Wellbeing")
 
 # Print the table
-delay_packages
+wellbeing_packages
 
 ```
 
@@ -85,28 +85,103 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
 ```
 
 
+
+
+
 We have the data
 
 ```{r, echo=TRUE}
+demographic_indicators2011 <-
+  janitor::clean_names(demographic_indicators2011)
+
 demographic_indicators2011
 ```
 
+```{r, echo= TRUE}
+income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income", 'no_certificate_diploma_or_degree', 'college_cegep_or_other_non_university_certificate_or_diploma', 'university_certificate_or_diploma_below_bachelor_level', 'total_visible_minority_population', 'not_a_visible_minority'))
+
+names(income_demographic2011)[names(income_demographic2011) == "hood_number"] <- "ID"
+
+#income_demographic2011  <- as.data.frame(income_demographic2011)
+
+income_demographic2011 <- income_demographic2011[income_demographic2011$ID != 'ID',]       
+
+income_demographic2011
+```
+
+
+
+
+Second dataset
+
+
+```{r, echo= TRUE}
+wellbeing_housing_package <- wellbeing_packages %>%
+  filter(title == "Wellbeing Toronto - Housing") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
+
+```
+
+
+More writing
+
+```{r, echo= TRUE}
+list_package_resources(wellbeing_housing_package)
+
+```
 
 Writing
 
+```{r, echo= TRUE}
+housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package 
+  list_package_resources() %>% # List the resources in the package
+  filter(name == "wellbeing-toronto-housing") %>% # Only keep the resource we want 
+  get_resource()
+
+housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
+```
+
+
+We have the data
+
+```{r, echo=TRUE}
+housing_indicators2011
+```
 
 ```{r}
-# See what the "Line" column looks like
-edu_demographic2011 = demographic_indicators2011 %>% select('College, CEGEP or other non-university certificate or diploma')
+housing_indicators2011 <- 
+  janitor::clean_names(housing_indicators2011)
 
-edu_demographic2011 <- edu_demographic2011 %>% 
-  rename(
-    'Less than Bachelor' = 'College, CEGEP or other non-university certificate or diploma'
-    )
+housing_indicators2011 <- subset(housing_indicators2011, select = c("neighbourhood_id", "neighbourhood"))
 
-edu_demographic2011 <- edu_demographic2011 %>%
-  dplyr::slice(2:)
+names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id"] <- "ID"
 
-edu_demographic2011
+
+housing_indicators2011
+```
+
+```{r}
+merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
+
+merged_df
+```
+
+
+```{r}
+#Create Graph1 dataframe 
+
+#income_demographic2011 <- transform(income_demographic2011, Median_income #= as.numeric(Median_income))
+
+
+values <- c(median(as.numeric(merged_df$median_after_tax_household_income)), max(as.numeric(merged_df$median_after_tax_household_income)), min(as.numeric(merged_df$median_after_tax_household_income)))
+
+neighborhoods <- c('Toronto Median', merged_df[which.max(merged_df$median_after_tax_household_income),]$neighbourhood, merged_df[which.min(merged_df$median_after_tax_household_income),]$neighbourhood)
+
+measures <- c('median', 'max', 'min')
+
+graph1_df <- cbind.data.frame(measures, neighborhoods, values)
+graph1_df
+
+```
+
 
 ```
