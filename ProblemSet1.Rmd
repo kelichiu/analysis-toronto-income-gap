@@ -84,7 +84,7 @@ demographic_indicators2011
 Selecting columns needed
 
 ```{r, echo= TRUE}
-income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income", 'no_certificate_diploma_or_degree', 'college_cegep_or_other_non_university_certificate_or_diploma', 'university_certificate_or_diploma_below_bachelor_level', 'total_visible_minority_population', 'not_a_visible_minority'))
+income_demographic2011 <- subset(demographic_indicators2011, select = c("hood_number", "median_after_tax_household_income", 'total_visible_minority_population', 'not_a_visible_minority'))
 
 names(income_demographic2011)[names(income_demographic2011) == "hood_number"] <- "ID"
 
@@ -95,8 +95,40 @@ income_demographic2011 <- income_demographic2011[income_demographic2011$ID != 'I
 income_demographic2011
 ```
 
-
 ##Second dataset
+
+Getting the information dataset called "education-nhs-indicators-2011" 
+
+
+```{r, echo= TRUE}
+education_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
+  list_package_resources() %>% # List the resources in the package
+  filter(name == "education-nhs-indicators-2011") %>% # Only keep the resource we want 
+  get_resource()
+```
+
+
+Cleaning the column names using janitor::clean_names
+
+```{r, echo=TRUE}
+education_indicators2011 <-
+  janitor::clean_names(education_indicators2011)
+
+education_indicators2011
+```
+
+Extracting the neighbourhood code from the column "geography"
+
+```{r}
+edu_id <- extract(education_indicators2011, geography, into = "ID" , regex = "([(][0-9]+[)])")
+
+edu_id <- extract(edu_id, ID, into = "ID" , regex = "([0-9]+)")
+
+edu_id
+```
+
+
+##Third dataset
 
 ###Filterint the housing dataset in order to extract the names of each neighborhood.
 
@@ -142,12 +174,21 @@ names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id
 housing_indicators2011
 ```
 
-##Merging both datasets
+
+
+
+##Merging all datasets
 
 ```{r}
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
+merged_df <- merge(merged_df, edu_id, by = 'ID')
+
+merged_df <- merged_df[,1:15]
+
 
 merged_df
+
+
 ```
 
 #Create Graph1 dataframe 
@@ -168,6 +209,8 @@ graph1_df
 
 ```
 
+
+Plotting the graph
 
 ```{r}
 ggplot(graph1_df, aes(x = neighborhoods, y = values)) + 
@@ -191,39 +234,65 @@ toronto_median_income <- median(as.numeric(income_demographic2011$median_after_t
 toronto_median_income
 
 #Calculate mean for the rest of the columns
-toronto_other_columns <-  mutate_all(merged_df[,4:8], as.numeric)
+toronto_other_columns <-  mutate_all(merged_df[,4:15], as.numeric)
 toronto_other_columns <- colMeans(toronto_other_columns)
 toronto_other_columns <- as.data.frame(toronto_other_columns)
 toronto_other_columns <- round(toronto_other_columns[,1])
 
+toronto_other_columns
 #Create graph2 dataframe
-graph2_df <- filter(merged_df, neighbourhood %in% c(neighborhoods))
-graph2_df <- add_row(graph2_df)
+filtered_dataset <- filter(merged_df, neighbourhood %in% c(neighborhoods))
+filtered_dataset <- add_row(filtered_dataset)
 
 #Assign values to third row
-graph2_df[3,2:3] <- c('Toronto', toronto_median_income)
-graph2_df[3,4:8] <- toronto_other_columns
-graph2_df
+filtered_dataset[3,2:3] <- c('Toronto', toronto_median_income)
+filtered_dataset[3,4:15] <- toronto_other_columns
 
+filtered_dataset
+
+filtered_dataset <- mutate(filtered_dataset, less_than_diploma = high_school_diploma_or_equivalent + 
+postsecondary_certificate_diploma_or_degree + 
+apprenticeship_or_trades_certificate_or_diploma + 
+college_cegep_or_other_non_university_certificate_or_diploma)
+
+#Rename columns
+filtered_dataset <- 
+  rename(filtered_dataset, 
+    median_income = median_after_tax_household_income,
+    no_high_school = no_certificate_diploma_or_degree,
+    above_bachelor = university_certificate_diploma_or_degree_above_bachelor_level,
+    university_diploma = university_certificate_or_diploma_below_bachelor_level
+    )
+
+
+graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor)
+
+
+graph2_df
 
 ```
 
 #Reshaping the dataset
 ```{r}
-v <- gather(graph2_df, )
+
+graph2_df <- gather(graph2_df, "study_level", "count_level", -1)
+
+graph2_df
+
 ```
 
 ##Plotting Graph2
 
 ```{r}
 
-ggplot(graph2_df, aes(x = neighborhoods, y = c(no_certificate_diploma_or_degree, college_cegep_or_other_non_university_certificate_or_diploma, university_certificate_or_diploma_below_bachelor_level))) + 
+ggplot(graph2_df, aes(x = neighbourhood, y = count_level, fill = study_level)) + 
   # Specify that we want a bar graph:
-  geom_col() + 
+  geom_bar(stat="identity", position=position_dodge()) +
+  #geom_text(aes(y=label_ypos, label=c('Bridle Path - Sunnybrook - York Mills', 'Regent Park', 'Toronto'))) +
   # Add titles and axis labels:
-  labs(title = "Neighborhoods with the Highest and Lowest median income, \nand Toronto median income", 
+  labs(title = "Neighborhoods by study level", 
        x = "Neighborhood", 
-       y = "Income") 
+       y = "Population") 
 
 ```
 
