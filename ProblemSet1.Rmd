@@ -227,16 +227,14 @@ kable(graph1_df)
 
 Graph 1: Median Total Household Income Graph
 
-```{r echo= TRUE, fig1, fig.height = 3, fig.width = 9, size = "tiny"}
+```{r echo= FALSE, fig1, fig.height = 2, fig.width = 7}
 #Plotting the graph
 ggplot(graph1_df_reshaped, aes(x = neighbourhood, y = as.numeric(income_value), fill = income_type)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) + 
   # Add titles and axis labels:
   labs(title = 
-         "Neighbourhoods with the Highest and Lowest median income, and Toronto median income", 
-       x = "neighbourhood", 
-       y = "Income") 
+         "Neighbourhoods with the Highest and Lowest median income, \nand Toronto median income", x = "neighbourhood", y = "Income") 
 ```
 
 
@@ -251,12 +249,10 @@ Graph 2: Education Levels Percentage
 
 ```{r echo= TRUE, fig2, fig.height = 3, fig.width = 9}
 #Plotting the graph
-ggplot(
-graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
+ggplot(graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) +
   # Add titles and axis labels:
-  labs(title = "Neighborhoods by study level", 
-       x = "Neighborhood", 
+  labs(title = "Neighborhoods by study level", x = "Neighborhood", 
        y = "Population (%)") 
 ```
