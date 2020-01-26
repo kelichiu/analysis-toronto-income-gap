@@ -1,10 +1,10 @@
 ---
 title: "Demography of Education in Toronto's neighbourhoods with Highest and Lowest Income"
 date: "23/01/2020"
-authors: Ke-Li Chiu, Diego Mamanche Castellanos
+author: Ke-Li Chiu, Diego Mamanche Castellanos
 output: pdf_document
 
-abstract: what was done, what was found, and why this matters. Descriptive, no prediction
+abstract: High levels of education, the common characteristics of those who live in Bridle Path-Sunnybrook-York Mills, Toronto's neighbourhood found as the one with the highest median income. By using Toronto's open data, this paper illustrates the education level distribution of the highest and lowest neighbourhood in terms of household income. It is important to understand these distributions because it exposes an alarming income inequality, that can be associated with the education level in each family.
 ---
 
 ```{r setup, include=FALSE}
@@ -223,7 +223,8 @@ Table  1: Median household income before and after tax.
 ```{r echo= FALSE}
 kable(graph1_df)
 ```
-### Median Total Household Income Graph
+
+Graph 1: Median Total Household Income Graph
 
 ```{r echo= TRUE, fig1, fig.height = 3, fig.width = 9, size = "tiny"}
 #Plotting the graph
@@ -245,13 +246,12 @@ kable(graph2_df_percentage[,1:4])
 ```
 
 
-### Education Levels Percentage Graph
+Graph 2: Education Levels Percentage
 
 ```{r echo= TRUE, fig2, fig.height = 3, fig.width = 9}
 #Plotting the graph
 ggplot(
-graph2_df_percentage_long, aes(x = neighbourhood, y = value, 
-                               fill = study_level)) + 
+graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) +
   # Add titles and axis labels:
@@ -259,5 +259,3 @@ graph2_df_percentage_long, aes(x = neighbourhood, y = value,
        x = "Neighborhood", 
        y = "Population (%)") 
 ```
-
-Authors: Ke-Li Chiu, Diego Mamanche Castellanos
