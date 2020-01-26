@@ -1,16 +1,18 @@
 ---
-title: "Compairing Toronto neighbourhoods With The Highest And Lowest Income"
-authors: "Ke-li Chiu & Diego Mamanche Castellanos"
+title: "Demography of Education in Toronto's neighbourhoods with Highest and Lowest Income"
 date: "23/01/2020"
-output: html_document
+output:
+  pdf_document: default
+authors: Ke-Li Chiu, Diego Mamanche Castellanos
+abstract: what was done, what was found, and why this matters. Descriptive, no prediction
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, include=FALSE}
 # installing packages
 my_packages <- c("opendatatoronto", "dplyr", "ggplot2", "tidyr")
 # For each of the 3 packages, check whether each one exists, and install if not
@@ -28,8 +30,12 @@ library(tidyr)
 library(ggplot2)
 ```
 
-# ABOUT THE DATA
+# Wellbeing Toronto - Demographics: NHS Indicators
+The data set package we delved into is *Wellbeing Toronto - Demographics: NHS Indicators*, which provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto. Data is broken down by the 140 neighbourhoods that make up the City of Toronto. With this data set package, we first identify the two neighbourhoods that have the highest income and the lowest income and then analysize the education demographics in these two neighbourhoods to understand difference of education attainment between these two neighbourhood. We also identify the median household income and the average education levels of the city to be compared with the two neighbourhoods.
 
+There are two data sets in this package in which we combine into one single data set: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_. _Demographics NHS Indicators 2011_ shows the following indicators: population breakdown by ethnicity, household income, education level, employment, age and sex. We extract the indicator of household income to identify the two neighbourds that has the highest household income and the one with the lowest. Although this data set provides data for education levels, the indicators are not completed since the data for education level higher than bachlor is not provided. To obtain the indicators of all education levels, we use _Education NHS Indicators 2011_, which provides complete education level indicators ranged from no-certification to postgraduate-level certification.  
+
+The neighbourhoods in the package are coded by numbers. To to retrieve the names of neighbourhood, we also include the housing data set from *Wellbeing Toronto - Housing* package. We incorporate the housing data set striclty for extracting the names of the neighbourhoods; no housing indicators are used in our analysis. 
 
 ```{r, echo= FALSE}
 # Search packages (this returns a table)
@@ -39,36 +45,21 @@ wellbeing_packages <- search_packages("Wellbeing")
 ```
 
 
-
-## The Wellbeing Toronto datasets
-
-Explanation
-
-
-
 ```{r, echo= FALSE}
 ### Filtering the wellbeing demographic dataset
 wellbeing_demographics_package<- wellbeing_packages %>%
   filter(title == "Wellbeing Toronto - Demographics: NHS Indicators") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
 ```
 
-
-List the names of the internal datasets
-
+## Demographics NHS Indicators 2011 data set
+_Demographics NHS Indicators 2011_ shows the profile of each neighbourhood regarding population breakdown by ethnicity, household income, education level, employment, age and sex. The indicators we are interested in are *Median household total income* and *Median after-tax household income*. These two columns show the median household income of every neighbourhood before and after tax in Canadian dollars. 
 ```{r, echo= FALSE}
-list_package_resources(wellbeing_demographics_package)
-```
-
-## First dataset
-
-We chose demographics-nhs-indicators-2011 internal dataset for information about income
-
-```{r, echo= FALSE}
-#Getting the information dataset called "demographics-nhs-indicators-2011"
+# Getting the information dataset called "demographics-nhs-indicators-2011"
 demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "demographics-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
+head(demographic_indicators2011[,c(1,47:48)]) # Show a preview of the data set
 ```
 
 
@@ -77,7 +68,6 @@ demographic_indicators2011 <- wellbeing_demographics_package %>% # Start with th
 #Cleaning the column names using janitor::clean_names
 demographic_indicators2011 <-
   janitor::clean_names(demographic_indicators2011)
-head(demographic_indicators2011[,c(1,46:48)])
 ```
 
 
@@ -91,73 +81,56 @@ income_demographic2011 <- income_demographic2011[income_demographic2011$ID != 'I
 #income_demographic2011
 ```
 
-##Second dataset
+## Education NHS Indicators 2011
 
-We chose education-nhs-indicators-2011 internal dataset for information about education levels 
-
+_Education NHS Indicators_ is provided for the population of age 15 and over living in private households. The data set presents the distrubution of people's most advanced education level in each neighbourhood. The levels we selected in the analysis are presented as follow.    
 
 ```{r, echo= FALSE}
 education_indicators2011 <- wellbeing_demographics_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "education-nhs-indicators-2011") %>% # Only keep the resource we want 
   get_resource()
-#education_indicators2011
+names(education_indicators2011[,c(3,4,7,10,11)])
 ```
 
 
 
 
-```{r, echo=TRUE}
+```{r, echo= FALSE}
 #Cleaning the column names using janitor::clean_names
 education_indicators2011 <-
   janitor::clean_names(education_indicators2011)
-head(education_indicators2011[,1:4])
+#head(education_indicators2011[,1:4])
 ```
 
-We extract the code from column "geography" and the levels of education.
 
-```{r}
+```{r echo= FALSE}
 #Extracting the neighbourhood code from the column "geography"
 edu_id <- extract(education_indicators2011, geography, into = "ID" , regex = "([(][0-9]+[)])")
 edu_id <- extract(edu_id, ID, into = "ID" , regex = "([0-9]+)")
-head(edu_id[,1:4])
+#head(edu_id[,1:4])
 ```
 
 
-## Third dataset
+## Wellbeing Toronto - Housing
 
-We chose "Wellbeing Toronto - Housing" dataset in order to extract the names of the neighbourhood.
+*Wellbeing Toronto - Housing* data set is used in order to extract the names of the neighbourhood. The indicators of housing are not in the scope of our analysis.
 
-```{r, echo= TRUE}
+# ===  Writing below this section is not yet started ===
+```{r, echo= FALSE}
 ###Filterint the housing dataset in order to extract the names of each neighbourhood.
 wellbeing_housing_package <- wellbeing_packages %>%
-  filter(title == "Wellbeing Toronto - Housing") # Only keep the row(s) where the title is "Wellbeing Toronto - Demographics: NHS Indicators"
-```
-
-
-
-
-```{r, echo= TRUE}
-#Extracting the package
-list_package_resources(wellbeing_housing_package)
-```
-
-
-
-```{r, echo= TRUE}
+  filter(title == "Wellbeing Toronto - Housing") 
 #Getting the information dataset called "wellbeing-toronto-housing"
 housing_indicators2011 <- wellbeing_housing_package %>% # Start with the package 
   list_package_resources() %>% # List the resources in the package
   filter(name == "wellbeing-toronto-housing") %>% # Only keep the resource we want 
   get_resource()
 housing_indicators2011 <- housing_indicators2011$RawDataRef_2011
-head(housing_indicators2011[,1:4])
+head(housing_indicators2011$Neighbourhood)
 ```
 
-
-
-
-```{r}
+```{r echo= FALSE}
 #Cleaning the column names using janitor::clean_names, and selecting columns needed
 housing_indicators2011 <- 
   janitor::clean_names(housing_indicators2011)
@@ -167,17 +140,15 @@ names(housing_indicators2011)[names(housing_indicators2011) == "neighbourhood_id
 ```
 
 
-
-
 ## Merging all datasets
 
 Explanation
 
-```{r}
+```{r echo= FALSE}
 merged_df <- merge(housing_indicators2011, income_demographic2011, by = 'ID')
 merged_df <- merge(merged_df, edu_id, by = 'ID')
 merged_df <- merged_df[,1:16]
-head(merged_df)
+#head(merged_df)
 ```
 
 ```{r echo=FALSE}
@@ -202,7 +173,6 @@ filtered_dataset[3,2:3] <- c('Toronto', toronto_median_income)
 filtered_dataset[3,4:16] <- toronto_other_columns
 filtered_dataset
 filtered_dataset <- mutate(filtered_dataset, less_than_diploma = high_school_diploma_or_equivalent + 
-postsecondary_certificate_diploma_or_degree + 
 apprenticeship_or_trades_certificate_or_diploma + 
 college_cegep_or_other_non_university_certificate_or_diploma)
 #Rename columns
@@ -214,25 +184,28 @@ filtered_dataset <-
     above_bachelor = university_certificate_diploma_or_degree_at_bachelor_level_or_above,
     university_diploma = university_certificate_or_diploma_below_bachelor_level
     )
-head(filtered_dataset)
+filtered_dataset <- mutate(filtered_dataset, total_population = (    no_high_school + above_bachelor + university_diploma + less_than_diploma + bachelors_degree ))
+#head(filtered_dataset)
 ```
 
 
 #Create Graph1 dataframe 
+Median household income
+Finally, the median total income is presented in a bar graph comparing the median for that neighbourhood as compared to the median for the entire city of Toronto.
 
-```{r}
+```{r echo= FALSE}
 #Create the dataframe graph1_df to plot the values
 graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
 #Reshape the dataset
 graph1_df <- gather(graph1_df, "income_type", "income_value", -1)
-graph1_df
+#graph1_df
 ```
 
 
 Plotting the graph
 
-```{r}
-ggplot(graph1_df, aes(x = neighbourhood, y = income_value, fill = income_type)) + 
+```{r echo= FALSE}
+ggplot(graph1_df, aes(x = neighbourhood, y = as.numeric(income_value), fill = income_type)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) + 
   # Add titles and axis labels:
@@ -241,12 +214,11 @@ ggplot(graph1_df, aes(x = neighbourhood, y = income_value, fill = income_type)) 
        y = "Income") 
 ```
 
-##Create graph2 dataframe
+## Create graph2 dataframe
 
-```{r}
+```{r echo= FALSE}
 #Create the dataframe graph1_df to plot the values
 graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor, total_population)
-
 # Create percentage columns
 graph2_df_percentage <- 
   mutate(graph2_df, no_high_school_pt =
@@ -272,20 +244,17 @@ graph2_df_percentage <- graph2_df_percentage %>%
     bachelors_degree_pt,
     neighbourhood
   )
-graph2_df_percentage
-
-
+#graph2_df_percentage
 #Reshape the dataset
 graph2_df_percentage_long <- 
   graph2_df_percentage %>% 
   pivot_longer(cols = no_high_school_pt:bachelors_degree_pt, names_to = "study_level")
-
-graph2_df_percentage_long
+#graph2_df_percentage_long
 ```
 
-##Plotting Graph2
+## Plotting Graph2
 
-```{r}
+```{r echo= FALSE}
 ggplot(
 graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
