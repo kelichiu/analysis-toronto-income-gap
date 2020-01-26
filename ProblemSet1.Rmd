@@ -3,6 +3,7 @@ title: "Demography of Education in Toronto's neighbourhoods with Highest and Low
 date: "23/01/2020"
 author: Ke-Li Chiu, Diego Mamanche Castellanos
 output: pdf_document
+fontsize: 5pt
 
 abstract: High levels of education, the common characteristics of those who live in Bridle Path-Sunnybrook-York Mills, Toronto's neighbourhood found as the one with the highest median income. By using Toronto's open data, this paper illustrates the education level distribution of the highest and lowest neighbourhood in terms of household income. It is important to understand these distributions because it exposes an alarming income inequality, that can be associated with the education level in each family.
 ---
