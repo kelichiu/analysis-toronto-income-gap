@@ -1,10 +1,12 @@
 ---
-title: "Demography of Education in Toronto's neighbourhoods with Highest and Lowest Income"
+title: "Income Gap and Education Profile in Toronto's Neighbourhoods"
 date: "23/01/2020"
-output:
-  pdf_document: default
-authors: Ke-Li Chiu, Diego Mamanche Castellanos
-abstract: what was done, what was found, and why this matters. Descriptive, no prediction
+author: Ke-Li Chiu, Diego Mamanche Castellanos
+output: pdf_document
+geometry: margin=1in
+fontsize: 5pt
+
+abstract: "Education is a contributor to many beneficial socio-economic outcomes. We intend to exam the education profile in the selected neighbourhoods of Toronto that have polarized household income from the data set package *Wellbeing Toronto - Demographics: NHS Indicators*. We first observe that the income gap between the neighbourhood with the higest household income and the lowest is enormous. The median house hold income of Bridle Path-Sunnybrook-York Mills is almost 9 times more than Regent Park before tax. Bridle Path-Sunnybrook-York Mills also has much higher attainment rate (45%) of higher education above bachelor degree than Regent Park (23%) and the City of Toronto (27%). We intend to use the comparison to bring awareness of inequality in income and education existing in the City of Toronto."
 ---
 
 ```{r setup, include=FALSE}
@@ -128,7 +130,7 @@ merged_df <- merged_df[,1:16]
 #head(merged_df)
 ```
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 #CLEANING THE MERGED DATASET
 #Calculate the median for column "median_after_tax_household_income"
 #Note: In this case, the median is better due to outliers
@@ -162,26 +164,33 @@ filtered_dataset <-
     )
 #Create column total_population
 filtered_dataset <- mutate(filtered_dataset, total_population = (    no_high_school + above_bachelor + university_diploma + less_than_diploma + bachelors_degree ))
-
 #Print the table
 #kable(head(filtered_dataset[,1:4]))
 ```
 
 ```{r echo= FALSE}
 #Create the dataframe graph1_df to plot the values
+graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
+#Reshape the dataset
+graph1_df_reshaped <- gather(graph1_df, "income_type", "income_value", -1)
+#graph1_df
+```
+
+```{r echo= FALSE}
+#Create the dataframe graph2_df to plot the values
 graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor, total_population)
 # Create percentage columns
 graph2_df_percentage <- 
-  mutate(graph2_df, no_high_school_pt =
+  mutate(graph2_df, no_certificate_pt =
            round(as.numeric(graph2_df$no_high_school)/as.numeric(graph2_df$total_population)*100), digits=4)
 graph2_df_percentage <- 
   mutate(graph2_df_percentage, above_bachelor_pt =
             round(as.numeric(graph2_df$above_bachelor)/as.numeric(graph2_df$total_population)*100), digits=4)
 graph2_df_percentage <- 
-  mutate(graph2_df_percentage, university_diploma_pt =
+  mutate(graph2_df_percentage, college_pt =
             round(as.numeric(graph2_df$university_diploma)/as.numeric(graph2_df$total_population)*100), digits=4)
 graph2_df_percentage <- 
-  mutate(graph2_df_percentage, less_than_diploma_pt =
+  mutate(graph2_df_percentage, highschool_pt =
             round(as.numeric(graph2_df$less_than_diploma)/as.numeric(graph2_df$total_population)*100), digits=4)
 graph2_df_percentage <- 
   mutate(graph2_df_percentage, bachelors_degree_pt =
@@ -189,106 +198,66 @@ graph2_df_percentage <-
 graph2_df_percentage <- graph2_df_percentage %>%
   select(
     neighbourhood,
-    no_high_school_pt,
+    no_certificate_pt,
     above_bachelor_pt,
-    university_diploma_pt,
-    less_than_diploma_pt,
+    college_pt,
+    highschool_pt,
     bachelors_degree_pt,
   )
-
 #Reshape the dataset
 graph2_df_percentage_long <- 
   graph2_df_percentage %>% 
-  pivot_longer(cols = no_high_school_pt:bachelors_degree_pt, names_to = "study_level")
+  pivot_longer(cols = no_certificate_pt:bachelors_degree_pt, names_to = "study_level")
 #graph2_df_percentage_long
 ```
-
 # Wellbeing Toronto - Demographics: NHS Indicators
-The data set package we delve into is *Wellbeing Toronto - Demographics: NHS Indicators*, which provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto. Data is broken down by the 140 neighbourhoods that make up the City of Toronto. With this data set package, we first identify the two neighbourhoods that have the highest income and the lowest income and then analysize the education demographics in these two neighbourhoods to understand difference of education attainment between these two neighbourhood. We also identify the median household income and the average education levels of the city to be compared with the two neighbourhoods. There are two data sets in this package used in the analysis: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_. Additionally, we incorporate the *Wellbeing Toronto - Housing* data set solely for extracting the names of the neighbourhoods; no housing indicators are used in our analysis. 
-
+*Wellbeing Toronto - Demographics: NHS Indicators* provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto across 140 neighbourhoods. There are two data sets in this package used in the analysis: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_, described in the following sections.
 ## Demographics NHS Indicators 2011 data set
-_Demographics NHS Indicators 2011_ shows the profile of each neighbourhood regarding population breakdown by ethnicity, household income, education level, employment, age and sex. The indicators we are interested in are *Median household total income* and *Median after-tax household income*. These two columns show the median household income of every neighbourhood before and after tax in Canadian dollars. 
-
-From this data set, we identify the neighbourd with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourd with the lowest median household income (Regent Park). We also calculate the median household income of all neibourhoods in the city of Toronto as summary statistics to be compared with the two neighbourhoods, appended to the last row.
-
-Table  1: Median household income before and after tax.
+In _Demographics NHS Indicators 2011_, the indicators we are interested in are *Median household total income* and *Median after-tax household income*, which show the median household income of every neighbourhood before and after tax. We identify the neighbourdhood with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourdhood with the lowest median household income (Regent Park). We then calculate the median household income of Toronto as summary statistics.
 ```{r echo= FALSE}
-kable(filtered_dataset[,c(2,4:5)])
+kable(graph1_df)
 ```
 
-## Education NHS Indicators 2011
-_Education NHS Indicators_ is provided for the population of age 15 and over living in private households. The data set presents the distrubution of people's most advanced education level in each neighbourhood. Because the population in each neighbourhood is different, we can not compare the percentage of education attainment by the absolute values provided in the data set. Therefore, we transform the data to relative values. The transformation is done by aggregating the number of population in all education levels and dividing it by the number in each education level. 
-```{r echo= FALSE}
-kable(graph2_df_percentage)
-```
+Table 1: Median household income before and after tax.
 
-## Median Total Household Income Graph
-
-```{r echo= FALSE}
-#Create the dataframe graph1_df to plot the values
-graph1_df <- select(filtered_dataset, neighbourhood, median_income_after_tax, median_income)
-#Reshape the dataset
-graph1_df <- gather(graph1_df, "income_type", "income_value", -1)
-#graph1_df
-```
-
-```{r echo= FALSE, fig1, fig.height = 3, fig.width = 9}
+The median total income is presented in a bar graph comparing the two neighbourhoods and the entire city of Toronto. Before tax, Bridle Path-Sunnybrook-York Mills has median household income that is almost 9 times more than Regent Park and 3 times more than the median household income of Toronto. We observe that taxation brings the income gap smaller; after tax, the income of Bridle Path-Sunnybrook-York Mills is about 5 times more than Regent Park.
+```{r echo= FALSE, fig1, fig.height = 2, fig.width = 7}
 #Plotting the graph
-ggplot(graph1_df, aes(x = neighbourhood, y = as.numeric(income_value), fill = income_type)) + 
+ggplot(graph1_df_reshaped, aes(x = neighbourhood, y = as.numeric(income_value), fill = income_type)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) + 
   # Add titles and axis labels:
-  labs(title = "neighbourhoods with the Highest and Lowest median income, \nand Toronto median income", 
-       x = "neighbourhood", 
-       y = "Income") 
+  labs(title = "Median Total Household Income", x = "Neighbourhood", y = "Income")+
+  theme(text = element_text(size=9)) +
+  scale_fill_discrete(name = "", labels = c("Before Tax", "After Tax"))
 ```
+Figure 1: Median Total Household Income Graph
 
-## Education Levels Percentage Graph
-
+## Education NHS Indicators 2011
+The data set presents the distribution of people’s most advanced education level in each neighbourhood. The value provided is measured in number of people thus not suitable for percentage comparison. We transform the data to relative values as population percentage by aggregating the number of population in all education levels and dividing it by the population in each education level. We also calculate the average percentage of education levels of Toronto as summary statistics.
 ```{r echo= FALSE}
-#Create the dataframe graph1_df to plot the values
-graph2_df <- select(filtered_dataset, neighbourhood, no_high_school, less_than_diploma, university_diploma, bachelors_degree, above_bachelor, total_population)
-# Create percentage columns
-graph2_df_percentage <- 
-  mutate(graph2_df, no_high_school_pt =
-           as.numeric(graph2_df$no_high_school)/as.numeric(graph2_df$total_population))
-graph2_df_percentage <- 
-  mutate(graph2_df_percentage, above_bachelor_pt =
-           as.numeric(graph2_df$above_bachelor)/as.numeric(graph2_df$total_population))
-graph2_df_percentage <- 
-  mutate(graph2_df_percentage, university_diploma_pt =
-           as.numeric(graph2_df$university_diploma)/as.numeric(graph2_df$total_population))
-graph2_df_percentage <- 
-  mutate(graph2_df_percentage, less_than_diploma_pt =
-           as.numeric(graph2_df$less_than_diploma)/as.numeric(graph2_df$total_population))
-graph2_df_percentage <- 
-  mutate(graph2_df_percentage, bachelors_degree_pt =
-           as.numeric(graph2_df$bachelors_degree)/as.numeric(graph2_df$total_population))
-graph2_df_percentage <- graph2_df_percentage %>%
-  select(
-    no_high_school_pt,
-    above_bachelor_pt,
-    university_diploma_pt,
-    less_than_diploma_pt,
-    bachelors_degree_pt,
-    neighbourhood
-  )
-#graph2_df_percentage
-#Reshape the dataset
-graph2_df_percentage_long <- 
-  graph2_df_percentage %>% 
-  pivot_longer(cols = no_high_school_pt:bachelors_degree_pt, names_to = "study_level")
-#graph2_df_percentage_long
+kable(graph2_df_percentage[,1:4])
 ```
 
-```{r echo= FALSE, fig2, fig.height = 3, fig.width = 9}
-ggplot(
-graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
+Table 2: Education levels percentage
+
+The education level percentages are presented in a bar graph. We observe that Bridle Path-Sunnybrook-York Mills, the neighbourhood with the highest income has much higher attainment to education above bachelor degree (45%) compared to Regent Park (23%) and the city of Toronto (27%).
+```{r echo= TRUE, fig2, fig.height = 2, fig.width = 9}
+ggplot(graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
   geom_bar(stat="identity", position=position_dodge()) +
-  #geom_text(aes(y=label_ypos, label=c('Bridle Path - Sunnybrook - York Mills', 'Regent Park', 'Toronto'))) +
-  # Add titles and axis labels:
-  labs(title = "Neighborhoods by study level", 
-       x = "Neighborhood", 
-       y = "Population") 
+  # Add graph title and axis labels:
+  labs(title = "Education Levels Population Percentage", x = "Neighborhood", 
+       y = "Population (%)") +
+  # Rename the legend labels to be more readable
+  scale_fill_discrete(name = "", labels = c("Above Bachelor", "Bachelor", "College", 
+                                            "Highschool", "No Certificate"))
 ```
+Figure 2: Education Levels Population Percentage Graph
+
+
+# References
+
+City of Toronto. (2017, November 14). About Wellbeing Toronto. Retrieved January 22, 2020, from https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/wellbeing-toronto/about-wellbeing-toronto/
+
+Open Data Dataset. (n.d.). Retrieved January 22, 2020, from https://open.toronto.ca/dataset/wellbeing-toronto-demographics-nhs-indicators/
