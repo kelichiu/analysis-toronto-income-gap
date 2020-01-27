@@ -6,7 +6,7 @@ output: pdf_document
 geometry: margin=1in
 fontsize: 5pt
 
-abstract: "Education is a contributor to many beneficial socio-economic outcomes. We intend to exam the education profile in the selected neighbourhoods of Toronto that have polarized household income from the data set package *Wellbeing Toronto - Demographics: NHS Indicators*. We first observe that the income gap between the neighbourhood with the higest household income and the lowest is enormous. The median house hold income of Bridle Path-Sunnybrook-York Mills is almost 9 times more than Regent Park before tax. Bridle Path-Sunnybrook-York Mills also has much higher attainment rate (45%) of higher education above bachelor degree than Regent Park (23%) and the City of Toronto (27%). We intend to use the comparison to bring awareness of inequality in income and education existing in the City of Toronto."
+abstract: "Education is a contributor to many beneficial socio-economic outcomes. We intend to exam the education profile in the selected neighbourhoods of Toronto that have polarized household income from the data set package *Wellbeing Toronto - Demographics: NHS Indicators*. We first observe that the income gap between the neighbourhood with the highest household income and the lowest is enormous. The median household income of Bridle Path-Sunnybrook-York Mills is almost nine times more than Regent Park before tax. Bridle Path-Sunnybrook-York Mills also has a much higher attainment rate (45%) of higher education above a bachelor's degree than Regent Park (23%) and the City of Toronto (27%). We intend to use the comparison to bring awareness of inequality in income and education existing in the City of Toronto."
 ---
 
 ```{r setup, include=FALSE}
@@ -213,14 +213,14 @@ graph2_df_percentage_long <-
 # Wellbeing Toronto - Demographics: NHS Indicators
 *Wellbeing Toronto - Demographics: NHS Indicators* provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto across 140 neighbourhoods. There are two data sets in this package used in the analysis: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_, described in the following sections.
 ## Demographics NHS Indicators 2011 data set
-In _Demographics NHS Indicators 2011_, the indicators we are interested in are *Median household total income* and *Median after-tax household income*, which show the median household income of every neighbourhood before and after tax. We identify the neighbourdhood with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourdhood with the lowest median household income (Regent Park). We then calculate the median household income of Toronto as summary statistics.
+In _Demographics NHS Indicators 2011_, the indicators we are interested in are *Median household total income* and *Median after-tax household income*, which show the median household income of every neighbourhood before and after tax is applied. We identify the neighbourhood with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourhood with the lowest median household income (Regent Park). We then calculate the median household income of Toronto as summary statistics.
 ```{r echo= FALSE}
 kable(graph1_df)
 ```
 
 Table 1: Median household income before and after tax.
 
-The median total income is presented in a bar graph comparing the two neighbourhoods and the entire city of Toronto. Before tax, Bridle Path-Sunnybrook-York Mills has median household income that is almost 9 times more than Regent Park and 3 times more than the median household income of Toronto. We observe that taxation brings the income gap smaller; after tax, the income of Bridle Path-Sunnybrook-York Mills is about 5 times more than Regent Park.
+The median total income is presented in a bar graph comparing the two neighbourhoods and the entire city of Toronto. Before tax is applied, Bridle Path-Sunnybrook-York Mills has a median household income that is almost nine times more than Regent Park and three times more than the median household income of Toronto. We observe that taxation brings the income gap smaller; after tax is applied, the income of Bridle Path-Sunnybrook-York Mills is about five times more than Regent Park.
 ```{r echo= FALSE, fig1, fig.height = 2, fig.width = 7}
 #Plotting the graph
 ggplot(graph1_df_reshaped, aes(x = neighbourhood, y = as.numeric(income_value), fill = income_type)) + 
@@ -234,14 +234,14 @@ ggplot(graph1_df_reshaped, aes(x = neighbourhood, y = as.numeric(income_value), 
 Figure 1: Median Total Household Income Graph
 
 ## Education NHS Indicators 2011
-The data set presents the distribution of people’s most advanced education level in each neighbourhood. The value provided is measured in number of people thus not suitable for percentage comparison. We transform the data to relative values as population percentage by aggregating the number of population in all education levels and dividing it by the population in each education level. We also calculate the average percentage of education levels of Toronto as summary statistics.
+The data set presents the distribution of people’s most advanced education level in each neighbourhood. The value provided is measured in the number of people, thus not suitable for percentage comparison. We transform the data to relative values as population percentage by aggregating the number of population in all education levels and dividing it by the population in each education level. We also calculate the average percentage of education levels in Toronto as summary statistics.
 ```{r echo= FALSE}
 kable(graph2_df_percentage[,1:4])
 ```
 
 Table 2: Education levels percentage
 
-The education level percentages are presented in a bar graph. We observe that Bridle Path-Sunnybrook-York Mills, the neighbourhood with the highest income has much higher attainment to education above bachelor degree (45%) compared to Regent Park (23%) and the city of Toronto (27%).
+The education level percentages are presented in a bar graph. We observe that Bridle Path-Sunnybrook-York Mills, the neighbourhood with the highest income, has much higher attainment to education above bachelor's degree (45%) compared to Regent Park (23%) and the city of Toronto (27%).
 ```{r echo= TRUE, fig2, fig.height = 2, fig.width = 9}
 ggplot(graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study_level)) + 
   # Specify that we want a bar graph:
