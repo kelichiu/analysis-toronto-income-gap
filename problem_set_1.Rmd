@@ -212,6 +212,7 @@ graph2_df_percentage_long <-
 ```
 # Wellbeing Toronto - Demographics: NHS Indicators
 *Wellbeing Toronto - Demographics: NHS Indicators* provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto across 140 neighbourhoods. There are two data sets in this package used in the analysis: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_, described in the following sections.
+
 ## Demographics NHS Indicators 2011 data set
 In _Demographics NHS Indicators 2011_, the indicators we are interested in are *Median household total income* and *Median after-tax household income*, which show the median household income of every neighbourhood before and after tax is applied. We identify the neighbourhood with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourhood with the lowest median household income (Regent Park). We then calculate the median household income of Toronto as summary statistics.
 ```{r echo= FALSE}
@@ -250,7 +251,7 @@ ggplot(graph2_df_percentage_long, aes(x = neighbourhood, y = value, fill = study
   labs(title = "Education Levels Population Percentage", x = "Neighborhood", 
        y = "Population (%)") +
   # Rename the legend labels to be more readable
-  scale_fill_discrete(name = "", labels = c("Above Bachelor", "Bachelor", "College", 
+  scale_fill_discrete(name = "", labels = c("Above Bachelor", "Bachelor", "Less than Bachelor", 
                                             "Highschool", "No Certificate"))
 ```
 Figure 2: Education Levels Population Percentage Graph
