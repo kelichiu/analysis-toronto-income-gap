@@ -6,4 +6,4 @@ Education is a contributor to many beneficial socio-economic outcomes. We intend
 ## Data: Wellbeing Toronto - Demographics: NHS Indicators
 *Wellbeing Toronto - Demographics: NHS Indicators* provides information from the 2011 National Household Survey (NHS) and presents a profile of Toronto across 140 neighbourhoods. There are two data sets in this package used in the analysis: _Demographics NHS Indicators 2011_ and _Education NHS Indicators 2011_. In _Demographics NHS Indicators 2011_, the indicators we are interested in are *Median household total income* and *Median after-tax household income*, which show the median household income of every neighbourhood before and after tax is applied. We identify the neighbourhood with the highest median household income (Bridle Path-Sunnybrook-York Mills) and the neighbourhood with the lowest median household income (Regent Park). We then calculate the median household income of Toronto as summary statistics.
 
-### See the PDF file for data visualization and full analysis
+### See the [PDF file](toronto_income_gap.pdf) for data visualization and full analysis
