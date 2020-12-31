@@ -1,4 +1,4 @@
-# Income and Education Gaps in Toronto
+# Income Gap and Education Profile in Toronto's Neighbourhoods
 In collaboration with [diegoarmaca](https://github.com/diegoarmaca)
 
 ## Summary of Findings
