@@ -1,5 +1,5 @@
 # Income Gap and Education Profile in Toronto's Neighbourhoods
-In collaboration with [diegoarmaca](https://github.com/diegoarmaca)
+In collaboration with [Diego Mamanche Castellanos](https://github.com/diegoarmaca)
 
 ## Summary of Findings
 Education is a contributor to many beneficial socio-economic outcomes. We intend to exam the education profile in the selected neighbourhoods of Toronto that have polarized household income from the data set package *Wellbeing Toronto - Demographics: NHS Indicators*. We first observe that the income gap between the neighbourhood with the highest household income and the lowest is enormous. The median household income of Bridle Path-Sunnybrook-York Mills is almost nine times more than Regent Park before tax. Bridle Path-Sunnybrook-York Mills also has a much higher attainment rate (45%) of higher education above a bachelor's degree than Regent Park (23%) and the City of Toronto (27%). We intend to use the comparison to bring awareness of inequality in income and education existing in the City of Toronto.
